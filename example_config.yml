@@ -1,0 +1,8 @@
+Port: 5050
+
+Database:
+  DB_Host: "localhost"
+  DB_Port: 5432
+  DB_Name: "mydatabase"
+  DB_User: "myuser"
+  DB_Password: "mypassword"
