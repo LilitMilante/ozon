@@ -9,10 +9,10 @@ type Server struct {
 	r      *http.ServeMux
 	srv    *http.Server
 	h      *Handler
-	authMw *AuthMiddleware
+	authMw *Middleware
 }
 
-func NewServer(port int, h *Handler, authMw *AuthMiddleware) *Server {
+func NewServer(port int, h *Handler, authMw *Middleware) *Server {
 	router := http.NewServeMux()
 
 	srv := &http.Server{
@@ -29,9 +29,8 @@ func NewServer(port int, h *Handler, authMw *AuthMiddleware) *Server {
 }
 
 func (s *Server) Start() error {
-	s.r.Handle("POST /signup", s.authMw.Require(s.h.AddSeller))
-
-	s.r.HandleFunc("/login", s.h.Login)
+	s.r.HandleFunc("POST /signup", s.h.AddSeller)
+	s.r.HandleFunc("POST /login", s.h.Login)
 
 	return s.srv.ListenAndServe()
 }

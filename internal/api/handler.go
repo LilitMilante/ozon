@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"ozon/internal/entity"
 	"ozon/internal/service"
@@ -52,8 +53,6 @@ func (h *Handler) AddSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	seller.Sanitize()
-
 	SendJSON(w, seller)
 }
 
@@ -87,6 +86,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		Name:    "ssid",
 		Value:   sess.ID.String(),
 		Expires: sess.ExpiredAt,
+		MaxAge:  int(sess.ExpiredAt.Sub(time.Now()).Seconds()),
 	}
 
 	http.SetCookie(w, cookie)

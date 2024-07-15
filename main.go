@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 
 	"ozon/internal/api"
 	"ozon/internal/app"
@@ -10,15 +11,16 @@ import (
 	"ozon/internal/service"
 )
 
-var ctx = context.Background()
-
 func main() {
+	ctx := context.Background()
+	l := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+
 	c, err := app.NewConfig()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
-	conn, err := app.NewPostgresClient(ctx, c.Database)
+	conn, err := app.NewPostgresClient(ctx, c.Postgres)
 	if err != nil {
 		panic(err)
 	}
@@ -27,10 +29,11 @@ func main() {
 	repo := repository.NewRepository(conn)
 	s := service.NewService(repo)
 	h := api.NewHandler(s)
-	authMw := api.NewAuthMiddleware(s)
+	authMw := api.NewMiddleware(s)
 	srv := api.NewServer(c.Port, h, authMw)
 
-	log.Println("server started at:", c.Port)
+	l.Info("server started!", "port", c.Port)
+
 	err = srv.Start()
 	if err != nil {
 		panic(err)

@@ -6,17 +6,17 @@ import (
 	"ozon/internal/service"
 )
 
-type AuthMiddleware struct {
+type Middleware struct {
 	s *service.Service
 }
 
-func NewAuthMiddleware(s *service.Service) *AuthMiddleware {
-	return &AuthMiddleware{
+func NewMiddleware(s *service.Service) *Middleware {
+	return &Middleware{
 		s: s,
 	}
 }
 
-func (a *AuthMiddleware) Require(next http.HandlerFunc) http.Handler {
+func (a *Middleware) WithAuth(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("ssid")
 		if err != nil {
@@ -24,6 +24,7 @@ func (a *AuthMiddleware) Require(next http.HandlerFunc) http.Handler {
 			return
 		}
 
+		// todo: прокидывать seller через ctx
 		_, err = a.s.SellerBySessionID(r.Context(), cookie.Value)
 		if err != nil {
 			SendErr(w, http.StatusUnauthorized, service.ErrUnauthorized)

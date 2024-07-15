@@ -18,7 +18,7 @@ type Repository interface {
 	CreateSeller(ctx context.Context, s entity.Seller) (entity.Seller, error)
 
 	SessionByID(ctx context.Context, id string) (entity.Session, error)
-	Login(ctx context.Context, sess entity.Session) error
+	CreateSession(ctx context.Context, sess entity.Session) error
 }
 
 type Service struct {
@@ -53,6 +53,8 @@ func (s *Service) AddSeller(ctx context.Context, sl entity.Seller) (entity.Selle
 	if err != nil {
 		return sl, fmt.Errorf("create seller: %w", err)
 	}
+
+	sl.Sanitize()
 
 	return sl, nil
 }
@@ -98,7 +100,7 @@ func (s *Service) Login(ctx context.Context, sellerID uuid.UUID) (entity.Session
 		ExpiredAt: time.Now().Add(time.Minute * 1),
 	}
 
-	err := s.repo.Login(ctx, sess)
+	err := s.repo.CreateSession(ctx, sess)
 	if err != nil {
 		return entity.Session{}, err
 	}

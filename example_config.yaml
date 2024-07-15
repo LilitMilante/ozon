@@ -1,8 +1,2 @@
-Port: 5050
-
-Database:
-  DB_Host: "localhost"
-  DB_Port: 5432
-  DB_Name: "mydatabase"
-  DB_User: "myuser"
-  DB_Password: "mypassword"
+port: 5050
+postgres: "postgres://postgres:dev@localhost:5151/postgres?sslmode=disable"

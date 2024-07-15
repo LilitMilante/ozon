@@ -2,19 +2,14 @@ package app
 
 import (
 	"context"
-	"fmt"
-	"log"
 
 	"github.com/jackc/pgx/v5"
 )
 
-func NewPostgresClient(ctx context.Context, c DBConfig) (*pgx.Conn, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		c.Host, c.Port, c.User, c.Password, c.Name)
-
-	conn, err := pgx.Connect(ctx, psqlInfo)
+func NewPostgresClient(ctx context.Context, dsn string) (*pgx.Conn, error) {
+	conn, err := pgx.Connect(ctx, dsn)
 	if err != nil {
-		log.Fatal("connect to DB:", err)
+		return nil, err
 	}
 
 	err = conn.Ping(ctx)

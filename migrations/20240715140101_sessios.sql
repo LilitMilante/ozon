@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 CREATE TABLE sessions (
                           id UUID PRIMARY KEY,
-                          seller_id UUID NOT NULL REFERENCES sellers(id),
+                          seller_id UUID NOT NULL REFERENCES sellers(id) ON DELETE CASCADE,
                           created_at TIMESTAMPTZ NOT NULL,
                           expired_at TIMESTAMPTZ NOT NULL
 );;

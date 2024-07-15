@@ -8,13 +8,12 @@ import (
 )
 
 type Seller struct {
-	ID                uuid.UUID `json:"id"`
-	FullName          string    `json:"full_name"`
-	Login             string    `json:"login"`
-	Password          string    `json:"password,omitempty"`
-	EncryptedPassword string    `json:"-"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	ID        uuid.UUID `json:"id"`
+	FullName  string    `json:"full_name"`
+	Login     string    `json:"login"`
+	Password  string    `json:"password,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (s *Seller) Sanitize() {
@@ -22,5 +21,5 @@ func (s *Seller) Sanitize() {
 }
 
 func (s *Seller) ComparePassword(password string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(s.EncryptedPassword), []byte(password)) == nil
+	return bcrypt.CompareHashAndPassword([]byte(s.Password), []byte(password)) == nil
 }
