@@ -3,11 +3,12 @@ package entity
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type Seller struct {
-	ID                int64     `json:"id"`
+	ID                uuid.UUID `json:"id"`
 	FullName          string    `json:"full_name"`
 	Login             string    `json:"login"`
 	Password          string    `json:"password,omitempty"`
@@ -16,10 +17,10 @@ type Seller struct {
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 
-func (p *Seller) Sanitize() {
-	p.Password = ""
+func (s *Seller) Sanitize() {
+	s.Password = ""
 }
 
-func (p *Seller) ComparePassword(password string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(p.EncryptedPassword), []byte(password)) == nil
+func (s *Seller) ComparePassword(password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(s.EncryptedPassword), []byte(password)) == nil
 }

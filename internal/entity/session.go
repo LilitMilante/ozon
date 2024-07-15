@@ -8,7 +8,7 @@ import (
 
 type Session struct {
 	ID        uuid.UUID
-	SellerID  int64
+	SellerID  uuid.UUID
 	CreatedAt time.Time
 	ExpiredAt time.Time
 }

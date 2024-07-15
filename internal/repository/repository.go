@@ -9,6 +9,7 @@ import (
 	"ozon/internal/entity"
 	"ozon/internal/service"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -25,7 +26,7 @@ func NewRepository(db *pgx.Conn) *Repository {
 func (r *Repository) SellerByLogin(ctx context.Context, login string) (entity.Seller, error) {
 	var s entity.Seller
 
-	q := "SELECT id, full_name, login, created_at, updated_at FROM seller WHERE login = $1"
+	q := "SELECT id, full_name, login, created_at, updated_at FROM sellers WHERE login = $1"
 
 	err := r.db.QueryRow(ctx, q, login).
 		Scan(
@@ -46,10 +47,10 @@ func (r *Repository) SellerByLogin(ctx context.Context, login string) (entity.Se
 	return s, nil
 }
 
-func (r *Repository) SellerByID(ctx context.Context, id int64) (entity.Seller, error) {
+func (r *Repository) SellerByID(ctx context.Context, id uuid.UUID) (entity.Seller, error) {
 	var s entity.Seller
 
-	q := "SELECT id, full_name, login, created_at, updated_at FROM seller WHERE id = $1"
+	q := "SELECT id, full_name, login, created_at, updated_at FROM sellers WHERE id = $1"
 
 	err := r.db.QueryRow(ctx, q, id).
 		Scan(
@@ -72,9 +73,27 @@ func (r *Repository) SellerByID(ctx context.Context, id int64) (entity.Seller, e
 
 // Session
 
+func (r *Repository) CreateSeller(ctx context.Context, s entity.Seller) (entity.Seller, error) {
+	q := `
+INSERT INTO sellers (full_name, login, password, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5) RETURNING id
+`
+	err := r.db.QueryRow(
+		ctx,
+		q,
+		s.FullName,
+		s.Login,
+		s.Password,
+		s.CreatedAt,
+		s.UpdatedAt).
+		Scan(&s.ID)
+
+	return s, err
+}
+
 func (r *Repository) Login(ctx context.Context, sess entity.Session) error {
 	q := `
-INSERT INTO sessions (id, patient_id, created_at, expired_at) VALUES ($1, $2, $3, $4)
+INSERT INTO sessions (id, seller_id, created_at, expired_at) VALUES ($1, $2, $3, $4)
 `
 	_, err := r.db.Exec(ctx, q, sess.ID, sess.SellerID, sess.CreatedAt, sess.ExpiredAt)
 	return err

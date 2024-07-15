@@ -10,7 +10,7 @@ import (
 	"ozon/internal/service"
 )
 
-var ctx context.Context
+var ctx = context.Background()
 
 func main() {
 	c, err := app.NewConfig()

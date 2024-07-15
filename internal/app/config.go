@@ -1,39 +1,56 @@
 package app
 
 import (
-	"io/ioutil"
+	"fmt"
 	"log"
 
-	"gopkg.in/yaml.v3"
+	"github.com/ilyakaznacheev/cleanenv"
 )
 
 type Config struct {
-	Port int `yml:"Port"`
+	Port int `yaml:"Port" env-required:"true"`
 
-	Database DBConfig
+	Database DBConfig `yaml:"Database"`
 }
 
 type DBConfig struct {
-	Host     string `yml:"DB_Host"`
-	Port     int    `yml:"DB_Port"`
-	Name     string `yml:"DB_Name"`
-	User     string `yml:"DB_User"`
-	Password string `yml:"DB_Password"`
+	Host     string `yaml:"DB_Host" env-required:"true"`
+	Port     int    `yaml:"DB_Port" env-required:"true"`
+	Name     string `yaml:"DB_Name" env-required:"true"`
+	User     string `yaml:"DB_User" env-required:"true"`
+	Password string `yaml:"DB_Password" env-required:"true"`
 }
 
-func NewConfig() (Config, error) {
-	data, err := ioutil.ReadFile("config.yml")
+func NewConfig() (*Config, error) {
+	var cfg Config
+
+	err := cleanenv.ReadConfig("config.yaml", &cfg)
 	if err != nil {
-		log.Fatalf("error reading file: %v", err)
+		log.Fatalf("error reading config file: %s", err)
 	}
 
-	var conn Config
+	return &cfg, nil
+}
 
-	err = yaml.Unmarshal(data, &conn)
-	if err != nil {
-		log.Fatalf("error unmarshaling YAML: %v", err)
+func validateConfig(config Config) error {
+	if config.Port <= 0 {
+		return fmt.Errorf("server port field is required")
+	}
+	if config.Database.Host == "" {
+		return fmt.Errorf("database host field is required")
+	}
+	if config.Database.Port <= 0 {
+		return fmt.Errorf("database port field is required")
+	}
+	if config.Database.Name == "" {
+		return fmt.Errorf("database name field is required")
+	}
+	if config.Database.User == "" {
+		return fmt.Errorf("database user field is required")
+	}
+	if config.Database.Password == "" {
+		return fmt.Errorf("database password field is required")
 	}
 
-	return conn, nil
-
+	return nil
 }

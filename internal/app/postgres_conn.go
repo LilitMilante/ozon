@@ -9,8 +9,7 @@ import (
 )
 
 func NewPostgresClient(ctx context.Context, c DBConfig) (*pgx.Conn, error) {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		c.Host, c.Port, c.User, c.Password, c.Name)
 
 	conn, err := pgx.Connect(ctx, psqlInfo)

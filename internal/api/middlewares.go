@@ -16,7 +16,7 @@ func NewAuthMiddleware(s *service.Service) *AuthMiddleware {
 	}
 }
 
-func (a *AuthMiddleware) Require(next http.Handler) http.Handler {
+func (a *AuthMiddleware) Require(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("ssid")
 		if err != nil {

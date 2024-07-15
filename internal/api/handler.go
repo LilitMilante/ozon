@@ -9,25 +9,53 @@ import (
 
 	"ozon/internal/entity"
 	"ozon/internal/service"
+
+	"github.com/google/uuid"
 )
 
 type Service interface {
+	AddSeller(ctx context.Context, sl entity.Seller) (entity.Seller, error)
 	SellerBySessionID(ctx context.Context, ssid string) (entity.Seller, error)
 	SellerByLogin(ctx context.Context, login string) (entity.Seller, error)
-	Login(ctx context.Context, sellerID int64) (entity.Session, error)
+	Login(ctx context.Context, sellerID uuid.UUID) (entity.Session, error)
 }
 
 type Handler struct {
-	s *service.Service
+	s Service
 }
 
-func NewHandler(s *service.Service) *Handler {
+func NewHandler(s Service) *Handler {
 	return &Handler{
 		s: s,
 	}
 }
 
 // Sessions
+
+func (h *Handler) AddSeller(w http.ResponseWriter, r *http.Request) {
+	var seller entity.Seller
+
+	err := json.NewDecoder(r.Body).Decode(&seller)
+	if err != nil {
+		SendErr(w, http.StatusBadRequest, err)
+		return
+	}
+
+	seller, err = h.s.AddSeller(r.Context(), seller)
+	if err != nil {
+		if errors.Is(err, service.ErrAlreadyExists) {
+			SendErr(w, http.StatusConflict, err)
+			return
+		}
+
+		SendErr(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	seller.Sanitize()
+
+	SendJSON(w, seller)
+}
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var seller entity.Seller
