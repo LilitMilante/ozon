@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
@@ -37,7 +36,7 @@ func (r *Repository) SellerByLogin(ctx context.Context, login string) (entity.Se
 			&s.UpdatedAt,
 		)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return s, fmt.Errorf("get seller by login %v: %w", login, service.ErrNotFound)
 		}
 
@@ -61,7 +60,7 @@ func (r *Repository) SellerByID(ctx context.Context, id uuid.UUID) (entity.Selle
 			&s.UpdatedAt,
 		)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return s, fmt.Errorf("get seller by login %v: %w", id, service.ErrNotFound)
 		}
 

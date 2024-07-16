@@ -31,8 +31,6 @@ func NewHandler(s Service) *Handler {
 	}
 }
 
-// Sessions
-
 func (h *Handler) AddSeller(w http.ResponseWriter, r *http.Request) {
 	var seller entity.Seller
 
@@ -86,8 +84,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		Name:    "ssid",
 		Value:   sess.ID.String(),
 		Expires: sess.ExpiredAt,
-		MaxAge:  int(sess.ExpiredAt.Sub(time.Now()).Seconds()),
+		MaxAge:  int(time.Until(sess.ExpiredAt).Seconds()),
 	}
 
 	http.SetCookie(w, cookie)
+}
+
+func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("ok!")
 }

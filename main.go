@@ -27,7 +27,7 @@ func main() {
 	defer conn.Close(ctx)
 
 	repo := repository.NewRepository(conn)
-	s := service.NewService(repo)
+	s := service.NewService(repo, c.SessionAge)
 	h := api.NewHandler(s)
 	authMw := api.NewMiddleware(s)
 	srv := api.NewServer(c.Port, h, authMw)

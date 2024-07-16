@@ -22,12 +22,14 @@ type Repository interface {
 }
 
 type Service struct {
-	repo Repository
+	repo       Repository
+	sessionAge time.Duration
 }
 
-func NewService(repo Repository) *Service {
+func NewService(repo Repository, ssAge time.Duration) *Service {
 	return &Service{
-		repo: repo,
+		repo:       repo,
+		sessionAge: ssAge,
 	}
 }
 
@@ -97,7 +99,7 @@ func (s *Service) Login(ctx context.Context, sellerID uuid.UUID) (entity.Session
 		ID:        uuid.New(),
 		SellerID:  sellerID,
 		CreatedAt: time.Now(),
-		ExpiredAt: time.Now().Add(time.Minute * 1),
+		ExpiredAt: time.Now().Add(s.sessionAge),
 	}
 
 	err := s.repo.CreateSession(ctx, sess)

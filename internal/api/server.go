@@ -29,6 +29,8 @@ func NewServer(port int, h *Handler, authMw *Middleware) *Server {
 }
 
 func (s *Server) Start() error {
+	s.r.Handle("POST /products", s.authMw.WithAuth(s.h.AddProduct))
+
 	s.r.HandleFunc("POST /signup", s.h.AddSeller)
 	s.r.HandleFunc("POST /login", s.h.Login)
 
