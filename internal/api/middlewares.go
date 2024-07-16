@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"log/slog"
 	"net/http"
 
@@ -23,16 +24,18 @@ func NewMiddleware(s *service.Service, l *slog.Logger) *Middleware {
 
 func (m *Middleware) WithAuth(next http.HandlerFunc) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+
 		cookie, err := r.Cookie("ssid")
 		if err != nil {
-			SendErr(w, http.StatusUnauthorized, service.ErrUnauthorized)
+			SendErr(ctx, w, http.StatusUnauthorized, service.ErrUnauthorized)
 			return
 		}
 
 		// todo: прокидывать seller через ctx
 		_, err = m.s.SellerBySessionID(r.Context(), cookie.Value)
 		if err != nil {
-			SendErr(w, http.StatusUnauthorized, service.ErrUnauthorized)
+			SendErr(ctx, w, http.StatusUnauthorized, service.ErrUnauthorized)
 			return
 		}
 
@@ -42,8 +45,12 @@ func (m *Middleware) WithAuth(next http.HandlerFunc) http.Handler {
 
 func (m *Middleware) Log(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m.l.Info("incoming request", "request_id", uuid.New(), "method", r.Method, "url", r.URL.String(), "from", r.RemoteAddr)
+		l := m.l.With("request_id", uuid.New())
 
-		next.ServeHTTP(w, r)
+		l.Info("incoming request", "method", r.Method, "url", r.URL.String(), "from", r.RemoteAddr)
+
+		ctx := context.WithValue(r.Context(), "logger", l)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

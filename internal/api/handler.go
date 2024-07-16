@@ -32,51 +32,55 @@ func NewHandler(s Service) *Handler {
 }
 
 func (h *Handler) AddSeller(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	var seller entity.Seller
 
 	err := json.NewDecoder(r.Body).Decode(&seller)
 	if err != nil {
-		SendErr(w, http.StatusBadRequest, err)
+		SendErr(ctx, w, http.StatusBadRequest, err)
 		return
 	}
 
 	seller, err = h.s.AddSeller(r.Context(), seller)
 	if err != nil {
 		if errors.Is(err, service.ErrAlreadyExists) {
-			SendErr(w, http.StatusConflict, err)
+			SendErr(ctx, w, http.StatusConflict, err)
 			return
 		}
 
-		SendErr(w, http.StatusInternalServerError, err)
+		SendErr(ctx, w, http.StatusInternalServerError, err)
 		return
 	}
 
-	SendJSON(w, seller)
+	SendJSON(ctx, w, seller)
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	var seller entity.Seller
 
 	err := json.NewDecoder(r.Body).Decode(&seller)
 	if err != nil {
-		SendErr(w, http.StatusBadRequest, err)
+		SendErr(ctx, w, http.StatusBadRequest, err)
 		return
 	}
 
 	seller, err = h.s.SellerByLogin(r.Context(), seller.Login)
 	if err != nil {
 		if errors.Is(err, service.ErrNotFound) || !seller.ComparePassword(seller.Password) {
-			SendErr(w, http.StatusUnauthorized, fmt.Errorf("%w: incorrect login or password", service.ErrUnauthorized))
+			SendErr(ctx, w, http.StatusUnauthorized, fmt.Errorf("%w: incorrect login or password", service.ErrUnauthorized))
 			return
 		}
 
-		SendErr(w, http.StatusInternalServerError, err)
+		SendErr(ctx, w, http.StatusInternalServerError, err)
 		return
 	}
 
 	sess, err := h.s.Login(r.Context(), seller.ID)
 	if err != nil {
-		SendErr(w, http.StatusInternalServerError, err)
+		SendErr(ctx, w, http.StatusInternalServerError, err)
 		return
 	}
 
