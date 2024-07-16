@@ -29,7 +29,7 @@ func main() {
 	repo := repository.NewRepository(conn)
 	s := service.NewService(repo, c.SessionAge)
 	h := api.NewHandler(s)
-	authMw := api.NewMiddleware(s)
+	authMw := api.NewMiddleware(s, l)
 	srv := api.NewServer(c.Port, h, authMw)
 
 	l.Info("server started!", "port", c.Port)

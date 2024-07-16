@@ -7,7 +7,7 @@
 ### Сервис онлайн магазина
 
 - [X] База postgreSQL pgx
-- [ ] Логгер slog
+- [X] Логгер slog
 - [X] config yml
 - [X] migrator goose
 - [ ] unit tests на config и validation

@@ -6,30 +6,30 @@ import (
 )
 
 type Server struct {
-	r      *http.ServeMux
-	srv    *http.Server
-	h      *Handler
-	authMw *Middleware
+	r   *http.ServeMux
+	srv *http.Server
+	h   *Handler
+	mw  *Middleware
 }
 
-func NewServer(port int, h *Handler, authMw *Middleware) *Server {
+func NewServer(port int, h *Handler, mw *Middleware) *Server {
 	router := http.NewServeMux()
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: router,
+		Handler: mw.Log(router),
 	}
 
 	return &Server{
-		r:      router,
-		srv:    srv,
-		h:      h,
-		authMw: authMw,
+		r:   router,
+		srv: srv,
+		h:   h,
+		mw:  mw,
 	}
 }
 
 func (s *Server) Start() error {
-	s.r.Handle("POST /products", s.authMw.WithAuth(s.h.AddProduct))
+	s.r.Handle("POST /products", s.mw.WithAuth(s.h.AddProduct))
 
 	s.r.HandleFunc("POST /signup", s.h.AddSeller)
 	s.r.HandleFunc("POST /login", s.h.Login)
