@@ -2,6 +2,7 @@ package entity
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -40,4 +41,9 @@ func (s *Seller) Validate() error {
 	}
 
 	return nil
+}
+
+func (s *Seller) Normalize() {
+	s.FullName = strings.TrimSpace(s.FullName)
+	s.Login = strings.TrimSpace(s.Login)
 }

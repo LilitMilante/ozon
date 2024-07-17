@@ -5,6 +5,26 @@ import (
 	"testing"
 )
 
+func TestSeller_Normalize(t *testing.T) {
+	t.Parallel()
+
+	got := Seller{
+		FullName: "   name     ",
+		Login:    "   login    ",
+	}
+
+	got.Normalize()
+
+	want := Seller{
+		FullName: "name",
+		Login:    "login",
+	}
+
+	if want != got {
+		t.Fatalf("want: %s\ngot:%s", want, got)
+	}
+}
+
 func TestSeller_Validate(t *testing.T) {
 	t.Parallel()
 

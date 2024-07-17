@@ -39,6 +39,8 @@ func (h *Handler) AddSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	seller.Normalize()
+
 	err = seller.Validate()
 	if err != nil {
 		SendErr(ctx, w, http.StatusBadRequest, err)
