@@ -10,7 +10,7 @@
 - [X] Логгер slog
 - [X] config yml
 - [X] migrator goose
-- [ ] unit tests на config
+- [X] unit tests на config
 - [X] unit tests на validation
 - [ ] integration tests на репозиторий
 - [ ] add linter
