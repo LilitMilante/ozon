@@ -13,10 +13,10 @@ type Config struct {
 	SessionAge time.Duration `yaml:"session_age" env-required:"true"`
 }
 
-func NewConfig() (*Config, error) {
+func NewConfig(cfgPath string) (*Config, error) {
 	var cfg Config
 
-	err := cleanenv.ReadConfig("config.yaml", &cfg)
+	err := cleanenv.ReadConfig(cfgPath, &cfg)
 	if err != nil {
 		return nil, fmt.Errorf("reading config file: %w", err)
 	}

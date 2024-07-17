@@ -15,7 +15,7 @@ func main() {
 	ctx := context.Background()
 	l := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	c, err := app.NewConfig()
+	c, err := app.NewConfig("config.yaml")
 	if err != nil {
 		panic(err)
 	}
