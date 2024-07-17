@@ -61,10 +61,6 @@ func (s *Service) AddSeller(ctx context.Context, sl entity.Seller) (entity.Selle
 	return sl, nil
 }
 
-func (s *Service) SellerByLogin(ctx context.Context, login string) (entity.Seller, error) {
-	return s.repo.SellerByLogin(ctx, login)
-}
-
 func (s *Service) hashPassword(password string) (string, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
@@ -94,15 +90,24 @@ func (s *Service) SellerBySessionID(ctx context.Context, ssid string) (entity.Se
 	return seller, nil
 }
 
-func (s *Service) Login(ctx context.Context, sellerID uuid.UUID) (entity.Session, error) {
+func (s *Service) Login(ctx context.Context, sellerLogin string) (entity.Session, error) {
+	seller, err := s.repo.SellerByLogin(ctx, sellerLogin)
+	if err != nil {
+		if errors.Is(err, ErrNotFound) || !seller.ComparePassword(seller.Password) {
+			return entity.Session{}, fmt.Errorf("%w: incorrect login or password", ErrUnauthorized)
+		}
+
+		return entity.Session{}, err
+	}
+
 	sess := entity.Session{
 		ID:        uuid.New(),
-		SellerID:  sellerID,
+		SellerID:  seller.ID,
 		CreatedAt: time.Now(),
 		ExpiredAt: time.Now().Add(s.sessionAge),
 	}
 
-	err := s.repo.CreateSession(ctx, sess)
+	err = s.repo.CreateSession(ctx, sess)
 	if err != nil {
 		return entity.Session{}, err
 	}

@@ -10,15 +10,12 @@ import (
 
 	"ozon/internal/entity"
 	"ozon/internal/service"
-
-	"github.com/google/uuid"
 )
 
 type Service interface {
 	AddSeller(ctx context.Context, sl entity.Seller) (entity.Seller, error)
 	SellerBySessionID(ctx context.Context, ssid string) (entity.Seller, error)
-	SellerByLogin(ctx context.Context, login string) (entity.Seller, error)
-	Login(ctx context.Context, sellerID uuid.UUID) (entity.Session, error)
+	Login(ctx context.Context, sellerLogin string) (entity.Session, error)
 }
 
 type Handler struct {
@@ -37,6 +34,12 @@ func (h *Handler) AddSeller(w http.ResponseWriter, r *http.Request) {
 	var seller entity.Seller
 
 	err := json.NewDecoder(r.Body).Decode(&seller)
+	if err != nil {
+		SendErr(ctx, w, http.StatusBadRequest, err)
+		return
+	}
+
+	err = seller.Validate()
 	if err != nil {
 		SendErr(ctx, w, http.StatusBadRequest, err)
 		return
@@ -67,19 +70,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	seller, err = h.s.SellerByLogin(r.Context(), seller.Login)
+	sess, err := h.s.Login(r.Context(), seller.Login)
 	if err != nil {
-		if errors.Is(err, service.ErrNotFound) || !seller.ComparePassword(seller.Password) {
-			SendErr(ctx, w, http.StatusUnauthorized, fmt.Errorf("%w: incorrect login or password", service.ErrUnauthorized))
+		if errors.Is(err, service.ErrUnauthorized) {
+			SendErr(ctx, w, http.StatusUnauthorized, err)
 			return
 		}
 
-		SendErr(ctx, w, http.StatusInternalServerError, err)
-		return
-	}
-
-	sess, err := h.s.Login(r.Context(), seller.ID)
-	if err != nil {
 		SendErr(ctx, w, http.StatusInternalServerError, err)
 		return
 	}
