@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"time"
 
-	"ozon/internal/entity"
-	"ozon/internal/service"
+	"sellers-ms/internal/entity"
+	"sellers-ms/internal/service"
 )
 
 type Service interface {

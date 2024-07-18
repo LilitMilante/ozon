@@ -5,7 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
-	"ozon/internal/service"
+	"sellers-ms/internal/service"
 
 	"github.com/google/uuid"
 )

@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"ozon/internal/entity"
+	"sellers-ms/internal/entity"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"

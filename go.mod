@@ -1,4 +1,4 @@
-module ozon
+module sellers-ms
 
 go 1.22
 

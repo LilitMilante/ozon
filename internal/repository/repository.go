@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"ozon/internal/entity"
-	"ozon/internal/service"
+	"sellers-ms/internal/entity"
+	"sellers-ms/internal/service"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"

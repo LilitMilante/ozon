@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"os"
 
-	"ozon/internal/api"
-	"ozon/internal/app"
-	"ozon/internal/repository"
-	"ozon/internal/service"
+	"sellers-ms/internal/api"
+	"sellers-ms/internal/app"
+	"sellers-ms/internal/repository"
+	"sellers-ms/internal/service"
 )
 
 func main() {
