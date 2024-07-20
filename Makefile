@@ -1,5 +1,8 @@
 db:
-	docker run --name ozon_db -p 5151:5432 -e POSTGRES_PASSWORD=dev -d postgres:15.3-alpine
+	docker run --name sellers_db -p 5151:5432 -e POSTGRES_PASSWORD=dev -d postgres:15.3-alpine
+
+db-down:
+	docker rm -f sellers_db
 
 migrate-new:
 	goose -dir ./migrations create $(name) sql
