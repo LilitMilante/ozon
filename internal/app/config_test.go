@@ -15,6 +15,7 @@ func TestNewConfig(t *testing.T) {
 		Port:       5050,
 		Postgres:   "postgres://postgres:dev@localhost:5151/postgres?sslmode=disable",
 		SessionAge: time.Hour,
+		ApiKey:     "testApiKey12345",
 	}
 
 	if *got != want {

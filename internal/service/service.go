@@ -36,10 +36,10 @@ func NewService(repo Repository, ssAge time.Duration) *Service {
 func (s *Service) AddSeller(ctx context.Context, sl entity.Seller) (entity.Seller, error) {
 	_, err := s.repo.SellerByLogin(ctx, sl.Login)
 	if err == nil {
-		return sl, fmt.Errorf("seller with login %q: %w", sl.Login, ErrAlreadyExists)
+		return sl, fmt.Errorf("seller with login %q: %w", sl.Login, entity.ErrAlreadyExists)
 	}
 
-	if !errors.Is(err, ErrNotFound) {
+	if !errors.Is(err, entity.ErrNotFound) {
 		return sl, fmt.Errorf("seller with login %q: %w", sl.Login, err)
 	}
 
@@ -79,7 +79,7 @@ func (s *Service) SellerBySessionID(ctx context.Context, ssid string) (entity.Se
 	}
 
 	if time.Now().After(session.ExpiredAt) {
-		return entity.Seller{}, fmt.Errorf("%w: session expired", ErrUnauthorized)
+		return entity.Seller{}, fmt.Errorf("%w: session expired", entity.ErrUnauthorized)
 	}
 
 	seller, err := s.repo.SellerByID(ctx, session.SellerID)
@@ -93,8 +93,8 @@ func (s *Service) SellerBySessionID(ctx context.Context, ssid string) (entity.Se
 func (s *Service) Login(ctx context.Context, sellerLogin string) (entity.Session, error) {
 	seller, err := s.repo.SellerByLogin(ctx, sellerLogin)
 	if err != nil {
-		if errors.Is(err, ErrNotFound) || !seller.ComparePassword(seller.Password) {
-			return entity.Session{}, fmt.Errorf("%w: incorrect login or password", ErrUnauthorized)
+		if errors.Is(err, entity.ErrNotFound) || !seller.ComparePassword(seller.Password) {
+			return entity.Session{}, fmt.Errorf("%w: incorrect login or password", entity.ErrUnauthorized)
 		}
 
 		return entity.Session{}, err

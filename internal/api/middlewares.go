@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"sellers-ms/internal/entity"
 	"sellers-ms/internal/service"
 
 	"github.com/google/uuid"
@@ -28,14 +29,14 @@ func (m *Middleware) WithAuth(next http.HandlerFunc) http.Handler {
 
 		cookie, err := r.Cookie("ssid")
 		if err != nil {
-			SendErr(ctx, w, http.StatusUnauthorized, service.ErrUnauthorized)
+			SendErr(ctx, w, http.StatusUnauthorized, entity.ErrUnauthorized)
 			return
 		}
 
 		// todo: прокидывать seller через ctx
 		_, err = m.s.SellerBySessionID(r.Context(), cookie.Value)
 		if err != nil {
-			SendErr(ctx, w, http.StatusUnauthorized, service.ErrUnauthorized)
+			SendErr(ctx, w, http.StatusUnauthorized, entity.ErrUnauthorized)
 			return
 		}
 

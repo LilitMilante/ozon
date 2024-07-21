@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"sellers-ms/internal/entity"
-	"sellers-ms/internal/service"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -37,7 +36,7 @@ func (r *Repository) SellerByLogin(ctx context.Context, login string) (entity.Se
 		)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return s, fmt.Errorf("get seller by login %v: %w", login, service.ErrNotFound)
+			return s, fmt.Errorf("get seller by login %v: %w", login, entity.ErrNotFound)
 		}
 
 		return s, fmt.Errorf("get seller by login %v: %w", login, err)
@@ -61,7 +60,7 @@ func (r *Repository) SellerByID(ctx context.Context, id uuid.UUID) (entity.Selle
 		)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return s, fmt.Errorf("get seller by login %v: %w", id, service.ErrNotFound)
+			return s, fmt.Errorf("get seller by login %v: %w", id, entity.ErrNotFound)
 		}
 
 		return s, fmt.Errorf("get seller by login %v: %w", id, err)
@@ -105,7 +104,7 @@ func (r *Repository) SessionByID(ctx context.Context, id string) (s entity.Sessi
 		Scan(&s.ID, &s.SellerID, &s.CreatedAt, &s.ExpiredAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return s, service.ErrNotFound
+			return s, entity.ErrNotFound
 		}
 
 		return s, err

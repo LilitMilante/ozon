@@ -1,3 +1,4 @@
 port: 5050
 postgres: "postgres://postgres:dev@localhost:5151/postgres?sslmode=disable"
 session_age: 1h
+api_key: testApiKey12345

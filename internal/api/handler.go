@@ -6,25 +6,28 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"sellers-ms/internal/entity"
 	"sellers-ms/internal/service"
 )
 
-type Service interface {
+type SellersService interface {
 	AddSeller(ctx context.Context, sl entity.Seller) (entity.Seller, error)
 	SellerBySessionID(ctx context.Context, ssid string) (entity.Seller, error)
 	Login(ctx context.Context, sellerLogin string) (entity.Session, error)
 }
 
 type Handler struct {
-	s Service
+	sellers  SellersService
+	products *service.Products
 }
 
-func NewHandler(s Service) *Handler {
+func NewHandler(s SellersService, products *service.Products) *Handler {
 	return &Handler{
-		s: s,
+		sellers:  s,
+		products: products,
 	}
 }
 
@@ -47,9 +50,9 @@ func (h *Handler) AddSeller(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	seller, err = h.s.AddSeller(r.Context(), seller)
+	seller, err = h.sellers.AddSeller(r.Context(), seller)
 	if err != nil {
-		if errors.Is(err, service.ErrAlreadyExists) {
+		if errors.Is(err, entity.ErrAlreadyExists) {
 			SendErr(ctx, w, http.StatusConflict, err)
 			return
 		}
@@ -72,9 +75,9 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	sess, err := h.s.Login(r.Context(), seller.Login)
+	sess, err := h.sellers.Login(r.Context(), seller.Login)
 	if err != nil {
-		if errors.Is(err, service.ErrUnauthorized) {
+		if errors.Is(err, entity.ErrUnauthorized) {
 			SendErr(ctx, w, http.StatusUnauthorized, err)
 			return
 		}
@@ -95,4 +98,26 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("ok!")
+}
+
+func (h *Handler) ProductByID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	id, err := strconv.Atoi(r.PathValue("product_id"))
+	if err != nil {
+		SendErr(ctx, w, http.StatusBadRequest, fmt.Errorf("id must be a number"))
+		return
+	}
+
+	p, err := h.products.ProductByID(ctx, int64(id))
+	if err != nil {
+		if errors.Is(err, entity.ErrNotFound) {
+			SendErr(ctx, w, http.StatusNotFound, err)
+			return
+		}
+		SendErr(ctx, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	SendJSON(ctx, w, p)
 }
