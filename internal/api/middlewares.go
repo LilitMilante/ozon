@@ -33,14 +33,15 @@ func (m *Middleware) WithAuth(next http.HandlerFunc) http.Handler {
 			return
 		}
 
-		// todo: прокидывать seller через ctx
-		_, err = m.s.SellerBySessionID(r.Context(), cookie.Value)
+		seller, err := m.s.SellerBySessionID(ctx, cookie.Value)
 		if err != nil {
 			SendErr(ctx, w, http.StatusUnauthorized, entity.ErrUnauthorized)
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx = context.WithValue(ctx, "seller", seller)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

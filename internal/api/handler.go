@@ -97,7 +97,31 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("ok!")
+	ctx := r.Context()
+
+	seller := ctx.Value("seller").(entity.Seller)
+
+	var product entity.Product
+
+	err := json.NewDecoder(r.Body).Decode(&product)
+	if err != nil {
+		SendErr(ctx, w, http.StatusBadRequest, err)
+		return
+	}
+
+	product.SellerID = seller.ID
+
+	p, err := h.products.AddProduct(ctx, product)
+	if err != nil {
+		if errors.Is(err, entity.ErrBadRequest) {
+			SendErr(ctx, w, http.StatusBadRequest, err)
+			return
+		}
+		SendErr(ctx, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	SendJSON(ctx, w, p)
 }
 
 func (h *Handler) ProductByID(w http.ResponseWriter, r *http.Request) {
@@ -113,6 +137,48 @@ func (h *Handler) ProductByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if errors.Is(err, entity.ErrNotFound) {
 			SendErr(ctx, w, http.StatusNotFound, err)
+			return
+		}
+		SendErr(ctx, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	SendJSON(ctx, w, p)
+}
+
+func (h *Handler) ProductsBySellerID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	seller := ctx.Value("seller").(entity.Seller)
+
+	p, err := h.products.ProductsBySellerID(ctx, seller.ID)
+	if err != nil {
+		SendErr(ctx, w, http.StatusInternalServerError, err)
+		return
+	}
+
+	SendJSON(ctx, w, p)
+}
+
+func (h *Handler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	seller := ctx.Value("seller").(entity.Seller)
+
+	var updateProduct entity.UpdateProduct
+
+	err := json.NewDecoder(r.Body).Decode(&updateProduct)
+	if err != nil {
+		SendErr(ctx, w, http.StatusBadRequest, err)
+		return
+	}
+
+	updateProduct.SellerID = seller.ID
+
+	p, err := h.products.UpdateProduct(ctx, updateProduct)
+	if err != nil {
+		if errors.Is(err, entity.ErrBadRequest) {
+			SendErr(ctx, w, http.StatusBadRequest, err)
 			return
 		}
 		SendErr(ctx, w, http.StatusInternalServerError, err)

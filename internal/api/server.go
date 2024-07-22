@@ -30,6 +30,8 @@ func NewServer(port int, h *Handler, mw *Middleware) *Server {
 
 func (s *Server) Start() error {
 	s.r.Handle("POST /products", s.mw.WithAuth(s.h.AddProduct))
+	s.r.Handle("GET /sellers/products", s.mw.WithAuth(s.h.ProductsBySellerID))
+	s.r.Handle("PATCH /products/update", s.mw.WithAuth(s.h.UpdateProduct))
 	s.r.HandleFunc("GET /products/{product_id}", s.h.ProductByID)
 
 	s.r.HandleFunc("POST /signup", s.h.AddSeller)
