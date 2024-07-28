@@ -1,0 +1,90 @@
+openapi: "3.1.0"
+info:
+  title: sellers API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: localhost
+  - url: https://ozon.anaxita.ru/api
+    description: dev
+components:
+  responses:
+    SignupResponseBody:
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/Seller"
+  requestBodies:
+    SignupReqBody:
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/SignupReq"
+  schemas:
+    Seller:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+          example: "Alex Ko"
+        login:
+          type: string
+          example: "alex.ko"
+        password:
+          type: string
+          example: "qwerty1234"
+        created_at:
+          type: string
+          format: datetime
+        updated_at:
+          type: string
+          format: datetime
+    SignupReq:
+      type: object
+      properties:
+        full_name:
+          type: string
+          example: "Alex Ko"
+        login:
+          type: string
+          example: "alex.ko"
+        password:
+          type: string
+          example: "qwerty1234"
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "some error"
+paths:
+  /signup:
+    post:
+      operationId: signup
+      summary: registration
+      tags:
+        - auth
+      requestBody:
+        $ref: "#/components/requestBodies/SignupReqBody"
+      responses:
+        200:
+          $ref: "#/components/responses/SignupResponseBody"
+        400:
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Error"
+        409:
+          description: "seller already exist"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Error"
