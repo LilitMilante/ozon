@@ -20,6 +20,11 @@ components:
         "application/json":
           schema:
             $ref: "#/components/schemas/SignupReq"
+    LoginReqBody:
+      content:
+        "application/json":
+          schema:
+            $ref: "#/components/schemas/LoginReq"
   schemas:
     Seller:
       type: object
@@ -42,6 +47,15 @@ components:
         updated_at:
           type: string
           format: datetime
+    LoginReq:
+      type: object
+      properties:
+        login:
+          type: string
+          example: "alex.ko"
+        password:
+          type: string
+          example: "qwerty1234"
     SignupReq:
       type: object
       properties:
@@ -64,7 +78,7 @@ paths:
   /signup:
     post:
       operationId: signup
-      summary: registration
+      summary: Registration
       tags:
         - auth
       requestBody:
@@ -88,3 +102,35 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/Error"
+  /login:
+    post:
+      operationId: login
+      summary: Login
+      tags:
+        - auth
+      requestBody:
+        $ref: "#/components/requestBodies/LoginReqBody"
+      responses:
+        200:
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: ssid=<uuid>; Path=/; HttpOnly
+        400:
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Error"
+        401:
+          description: "invalid login or password or seller not found"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Error"
+        500:
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Error"
+
